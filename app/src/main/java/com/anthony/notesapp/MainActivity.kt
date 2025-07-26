@@ -89,6 +89,7 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Agregar Nota",
+                    tint = Color.Black
                 )
             }
         }
@@ -128,7 +129,7 @@ fun NoteCard(note: Note){
         modifier = Modifier.fillMaxWidth().clickable {
 
         },
-        colors = CardDefaults.cardColors(Color.Gray),
+        colors = CardDefaults.cardColors(Color(0xFF303030)),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
     ) {
         Column(
@@ -144,7 +145,7 @@ fun NoteCard(note: Note){
                     contentDescription = "Icono de Favorito",
                     tint = Color(0xFF616161)
                 )
-                Text(note.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(note.title?:"Secreto sin titulo", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
