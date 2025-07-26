@@ -754,6 +754,15 @@ fun EditNoteDialog(
                                 password != confirmPassword -> {
                                     passwordError = "Las contraseñas no coinciden"
                                 }
+                                password.length != 4 -> {
+                                    passwordError = "La contraseña debe tener 4 digitos"
+                                }
+                                !password.all { it.isDigit() } -> {
+                                    passwordError = "La contraseña debe ser completamente numérica"
+                                }
+                                password.toIntOrNull() == null -> {
+                                    passwordError = "La contrase;a no es un numero valido"
+                                }
                                 else -> {
                                     onSaveNote(title, content, password)
                                 }
