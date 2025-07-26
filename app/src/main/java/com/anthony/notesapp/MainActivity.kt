@@ -156,6 +156,7 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
                 onDismiss = {
                     showPasswordDialog = false
                     selectedNote = null
+                    isDeleting = false
                 },
                 onPasswordCorrect = {
                     showPasswordDialog = false
@@ -165,6 +166,7 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
                     viewModel.deleteNote(selectedNote!!)
                     showPasswordDialog = false
                     selectedNote = null
+                    isDeleting = false
                 },
                 isDeleting = isDeleting,
             )
@@ -441,10 +443,17 @@ fun CreateNoteDialog(
                                 password != confirmPassword -> {
                                     passwordError = "Las contraseñas no coinciden"
                                 }
-                                password.length < 4 || password.length >= 5 -> {
-                                    passwordError = "La contraseña debe tener 4 caracteres"
+                                password.length != 4 -> {
+                                    passwordError = "La contraseña debe tener 4 digitos"
+                                }
+                                !password.all { it.isDigit() } -> {
+                                    passwordError = "La contraseña debe ser completamente numérica"
+                                }
+                                password.toIntOrNull() == null -> {
+                                    passwordError = "La contrase;a no es un numero valido"
                                 }
                                 else -> {
+                                    passwordError = ""
                                     onSaveNote(title, content, password)
                                 }
                             }
