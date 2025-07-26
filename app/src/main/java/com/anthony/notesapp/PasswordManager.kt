@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.anthony.notesapp.viewModel.NoteViewModel
 
 class PasswordManager {
     companion object {
@@ -206,7 +207,9 @@ class PasswordManager {
         noteTitle: String?,
         correctPassword: Int,
         onDismiss: () -> Unit,
-        onPasswordCorrect: () -> Unit
+        onPasswordCorrect: () -> Unit,
+        onDeletingConfirmation: () -> Unit,
+        isDeleting : Boolean = false,
     ) {
         var enteredPassword by remember { mutableStateOf("") }
         var isError by remember { mutableStateOf(false) }
@@ -248,7 +251,11 @@ class PasswordManager {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Ingresa la contraseña para ver el contenido",
+                        text = if (isDeleting){
+                            "Ingresa la contraseña para eliminar su secretito"
+                        } else {
+                            "Ingresa la contraseña para ver el contenido"
+                        },
                         color = Color.Gray,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center
@@ -290,7 +297,11 @@ class PasswordManager {
                         Button(
                             onClick = {
                                 if (verifyPassword(enteredPassword, correctPassword)) {
-                                    onPasswordCorrect()
+                                   if (isDeleting){
+                                       onDeletingConfirmation()
+                                   } else {
+                                       onPasswordCorrect()
+                                   }
                                 } else {
                                     isError = true
                                     errorMessage = "Contraseña incorrecta"
@@ -302,7 +313,11 @@ class PasswordManager {
                             ),
                             enabled = enteredPassword.isNotEmpty()
                         ) {
-                            Text("Abrir")
+                            if (isDeleting) {
+                                Text("Eliminar")
+                            } else {
+                                Text("Abrir")
+                            }
                         }
                     }
                 }

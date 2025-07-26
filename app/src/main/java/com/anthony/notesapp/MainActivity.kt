@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             NotesAppTheme {
                 val noteViewModel: NoteViewModel = viewModel()
-                MainNotesView(viewModel = noteViewModel) // Pass it to your composable
+                MainNotesView(viewModel = noteViewModel)
             }
         }
     }
@@ -85,6 +85,7 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
     val passwordManager = PasswordManager()
     var showCreateDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
+    var isDeleting by remember { mutableStateOf(false) }
     var showNoteContent by remember { mutableStateOf(false) }
     var selectedNote by remember { mutableStateOf<Note?>(null) }
 
@@ -126,7 +127,9 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
             paddingValues = paddingValues,
             notes = notes,
             onDeleteNote = { noteToDelete ->
-                viewModel.deleteNote(noteToDelete) // Usar el viewModel para eliminar
+               selectedNote = noteToDelete
+                showPasswordDialog = true
+                isDeleting = true
             },
             onNoteClick = { note ->
                 selectedNote = note
@@ -157,7 +160,13 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
                 onPasswordCorrect = {
                     showPasswordDialog = false
                     showNoteContent = true
-                }
+                },
+                onDeletingConfirmation = {
+                    viewModel.deleteNote(selectedNote!!)
+                    showPasswordDialog = false
+                    selectedNote = null
+                },
+                isDeleting = isDeleting,
             )
         }
 
@@ -295,7 +304,7 @@ fun NoteCard(
 }
 
 @Composable
-fun  CreateNoteDialog(
+fun CreateNoteDialog(
     onDismiss: () -> Unit,
     onSaveNote: (String, String, String) -> Unit
 ) {
@@ -432,6 +441,9 @@ fun  CreateNoteDialog(
                                 password != confirmPassword -> {
                                     passwordError = "Las contraseñas no coinciden"
                                 }
+                                password.length < 4 || password.length >= 5 -> {
+                                    passwordError = "La contraseña debe tener 4 caracteres"
+                                }
                                 else -> {
                                     onSaveNote(title, content, password)
                                 }
@@ -449,7 +461,6 @@ fun  CreateNoteDialog(
         }
     }
 }
-
 
 @Composable
 fun NoteContentDialog(
