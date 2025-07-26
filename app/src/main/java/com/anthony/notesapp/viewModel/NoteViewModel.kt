@@ -14,6 +14,8 @@ class NoteViewModel : ViewModel() {
     val notes: StateFlow<List<Note>> = _notes.asStateFlow()
     val selectedNote: StateFlow<Note?> = _selectedNote.asStateFlow()
 
+
+
     fun loadSampleNotes() {
         _notes.value = listOf(
             Note(1, "Secretito 1", "Mi secretito ha sido revelado", 1324),
@@ -68,5 +70,10 @@ class NoteViewModel : ViewModel() {
 
     private fun getLastId(): Int {
         return _notes.value.lastOrNull()?.id ?: 0
+    }
+
+    fun deleteNote(note: Note) {
+        _notes.value = _notes.value.filter { it.id != note.id }
+        _selectedNote.value = null
     }
 }
