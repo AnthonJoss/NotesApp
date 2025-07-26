@@ -1,6 +1,10 @@
 package com.anthony.notesapp
 
-
+import android.widget.Toast
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.result.launch
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -214,6 +218,7 @@ class PasswordManager {
         var enteredPassword by remember { mutableStateOf("") }
         var isError by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
+        val context = LocalContext.current
 
         Dialog(onDismissRequest = onDismiss) {
             Card(
@@ -297,11 +302,16 @@ class PasswordManager {
                         Button(
                             onClick = {
                                 if (verifyPassword(enteredPassword, correctPassword)) {
-                                   if (isDeleting){
-                                       onDeletingConfirmation()
-                                   } else {
-                                       onPasswordCorrect()
-                                   }
+                                    if (isDeleting){
+                                        onDeletingConfirmation()
+                                        //Mensaje de se ha elimando tu nota correctamente
+
+                                        Toast.makeText(context, "Nota eliminada", Toast.LENGTH_SHORT).show()
+
+
+                                    } else {
+                                        onPasswordCorrect()
+                                    }
                                 } else {
                                     isError = true
                                     errorMessage = "Contraseña incorrecta"

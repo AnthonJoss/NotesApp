@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
@@ -84,10 +85,15 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
 
     val passwordManager = PasswordManager()
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
     var isDeleting by remember { mutableStateOf(false) }
     var showNoteContent by remember { mutableStateOf(false) }
     var selectedNote by remember { mutableStateOf<Note?>(null) }
+
+    var editTitle by remember { mutableStateOf("") }
+    var editContent by remember { mutableStateOf("") }
+    var editPassword by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
@@ -178,6 +184,38 @@ fun MainNotesView(viewModel: NoteViewModel = viewModel()){
                 note = selectedNote!!,
                 onDismiss = {
                     showNoteContent = false
+                    selectedNote = null
+                },
+                onEditClick = {
+                    showNoteContent = false
+                    // Cargar los valores actuales para edición
+                    editTitle = selectedNote!!.title ?: ""
+                    editContent = selectedNote!!.content ?: ""
+                    editPassword = selectedNote!!.secret.toString()
+                    showEditDialog = true
+                }
+            )
+        }
+        if (showEditDialog && selectedNote != null) {
+            EditNoteDialog(
+                title = editTitle,
+                content = editContent,
+                password = editPassword,
+                onTitleChange = { editTitle = it },
+                onContentChange = { editContent = it },
+                onPasswordChange = { editPassword = it },
+                onDismiss = {
+                    showEditDialog = false
+                    selectedNote = null
+                },
+                onSaveNote = { title, content, password ->
+                    viewModel.updateNote(
+                        title = title,
+                        content = content,
+                        secret = password.toInt(),
+                        noteId = selectedNote!!.id
+                    )
+                    showEditDialog = false
                     selectedNote = null
                 }
             )
@@ -474,7 +512,8 @@ fun CreateNoteDialog(
 @Composable
 fun NoteContentDialog(
     note: Note,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -530,15 +569,204 @@ fun NoteContentDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = onDismiss,
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFC107),
-                        contentColor = Color.Black
-                    )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Cerrar")
+                    Button(
+                        onClick = onEditClick,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4CAF50),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Create,
+                            contentDescription = "Editar nota",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFFC107),
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Cerrar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EditNoteDialog(
+    title: String,
+    content: String,
+    password: String,
+    onTitleChange: (String) -> Unit,
+    onContentChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onSaveNote: (String, String, String) -> Unit
+) {
+    var confirmPassword by remember { mutableStateOf(password) }
+    var passwordError by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f)
+                .padding(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF2E2E2E)
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = Color(0xFFFFC107),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Editar secreto",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = onTitleChange,
+                    label = { Text("Título", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color(0xFFFFC107),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = content,
+                    onValueChange = onContentChange,
+                    label = { Text("Contenido", color = Color.Gray) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    maxLines = Int.MAX_VALUE,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color(0xFFFFC107),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        onPasswordChange(it)
+                        passwordError = ""
+                    },
+                    label = { Text("Contraseña", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color(0xFFFFC107),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        passwordError = ""
+                    },
+                    label = { Text("Confirmar contraseña", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color(0xFFFFC107),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+
+                if (passwordError.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = passwordError,
+                        color = Color.Red,
+                        fontSize = 12.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TextButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = Color.Gray
+                        )
+                    ) {
+                        Text("Cancelar")
+                    }
+
+                    Button(
+                        onClick = {
+                            when {
+                                title.isBlank() || content.isBlank() || password.isBlank() || confirmPassword.isBlank() -> {
+                                    passwordError = "Todos los campos son obligatorios"
+                                }
+                                password != confirmPassword -> {
+                                    passwordError = "Las contraseñas no coinciden"
+                                }
+                                else -> {
+                                    onSaveNote(title, content, password)
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4CAF50),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Guardar")
+                    }
                 }
             }
         }
