@@ -1,6 +1,7 @@
 package com.anthony.notesapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -354,6 +355,8 @@ fun CreateNoteDialog(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -493,6 +496,7 @@ fun CreateNoteDialog(
                                 else -> {
                                     passwordError = ""
                                     onSaveNote(title, content, password)
+                                    Toast.makeText(context, "Secretito creado exitosamente", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
@@ -619,6 +623,7 @@ fun EditNoteDialog(
     var confirmPassword by remember { mutableStateOf(password) }
     var passwordError by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -765,6 +770,7 @@ fun EditNoteDialog(
                                 }
                                 else -> {
                                     onSaveNote(title, content, password)
+                                    Toast.makeText(context, "Secretito Editado Exitosamente", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },

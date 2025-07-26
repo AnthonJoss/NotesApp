@@ -1,10 +1,7 @@
 package com.anthony.notesapp
 
 import android.widget.Toast
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.activity.result.launch
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,18 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.anthony.notesapp.viewModel.NoteViewModel
 
 class PasswordManager {
     companion object {
-        // contraseña a validar
-        fun validatePassword(password: String): String? {
-            return when {
-                password.isBlank() -> "La contraseña no puede estar vacía"
-                else -> null
-            }
-        }
-
         /**
          * enteredPassword Contraseña ingresada por el usuario
          *  correctPassword Contraseña correcta almacenada
@@ -86,115 +74,6 @@ class PasswordManager {
                     color = Color.Red,
                     fontSize = 12.sp
                 )
-            }
-        }
-    }
-
-    /**
-     * nueva contraseña con confirmación
-     *  onDismiss Callback cuando se cierra el diálogo
-     *  onPasswordCreated Callback cuando se crea la contraseña exitosamente
-     *  title Título del diálogo
-     */
-    @Composable
-    fun CreatePasswordDialog(
-        onDismiss: () -> Unit,
-        onPasswordCreated: (String) -> Unit,
-        title: String = "Crear Contraseña"
-    ) {
-        var password by remember { mutableStateOf("") }
-        var confirmPassword by remember { mutableStateOf("") }
-        var passwordError by remember { mutableStateOf("") }
-
-        Dialog(onDismissRequest = onDismiss) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF2E2E2E)
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp)
-                ) {
-                    Text(
-                        text = title,
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Campo de contraseña
-                    PasswordInputField(
-                        value = password,
-                        onValueChange = {
-                            password = it
-                            passwordError = ""
-                        },
-                        label = "Contraseña",
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = passwordError.isNotEmpty()
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Campo de confirmar contraseña
-                    PasswordInputField(
-                        value = confirmPassword,
-                        onValueChange = {
-                            confirmPassword = it
-                            passwordError = ""
-                        },
-                        label = "Confirmar contraseña",
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = passwordError.isNotEmpty(),
-                        errorMessage = passwordError
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        TextButton(
-                            onClick = onDismiss,
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = Color.Gray
-                            )
-                        ) {
-                            Text("Cancelar")
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Button(
-                            onClick = {
-                                val passwordValidation = validatePassword(password)
-
-                                when {
-                                    passwordValidation != null -> {
-                                        passwordError = passwordValidation
-                                    }
-
-                                    else -> {
-                                        onPasswordCreated(password)
-                                    }
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFFFC107),
-                                contentColor = Color.Black
-                            )
-                        ) {
-                            Text("Crear")
-                        }
-                    }
-                }
             }
         }
     }
