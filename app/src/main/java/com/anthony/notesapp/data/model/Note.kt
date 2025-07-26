@@ -12,4 +12,3 @@ data class NoteUpsert(
     val content: String?,
     val secret: Int
 )
-

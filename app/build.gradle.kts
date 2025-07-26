@@ -61,10 +61,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
-    // dependecias de retrofit
-    implementation("com.squareup.retrofit2:retrofit:3.1.0-SNAPSHOT")
-
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2") // Or the latest version
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -15,7 +15,6 @@ class NoteViewModel : ViewModel() {
     val selectedNote: StateFlow<Note?> = _selectedNote.asStateFlow()
 
 
-
     fun loadSampleNotes() {
         _notes.value = listOf(
             Note(1, "Secretito 1", "Mi secretito ha sido revelado", 1324),
@@ -32,7 +31,11 @@ class NoteViewModel : ViewModel() {
         content : String?,
         secret : Int
     ) {
-        val noteRequest = NoteUpsert(title = title, content = content, secret = secret)
+        val noteRequest = NoteUpsert(
+            title = title,
+            content = content,
+            secret = secret)
+
         val note = Note(
             id = getLastId() + 1,
             title = noteRequest.title,
